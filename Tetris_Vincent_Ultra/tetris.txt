@@ -1,0 +1,240 @@
+俄罗斯方块的基本规则：（百度）
+1、一个用于摆放小型正方形的平面虚拟场地，其标准大小：
+行宽为10，列高为20，以每个小正方形为单位。 
+2、一组由4个小型正方形组成的规则图形，英文称为Tetromino，
+中文通称为方块共有7种，分别以S、Z、L、J、I、O、T这7个字母
+的形状来命名。
+I：一次最多消除四层
+J（左右）：最多消除三层，或消除二层
+L：最多消除三层，或消除二层
+O：消除一至二层
+S（左右）：最多二层，容易造成孔洞
+Z （左右）：最多二层，容易造成孔洞
+T：最多二层
+
+（1）玩家操作有：旋转方块，以格子为单位左右移动方块，让方块加速落下。
+（2）方块移到区域最下方或是着地到其他方块上无法移动时，就会固定在该处，而新的方块出现在区域上方开始落下。
+（3）当区域中某一列横向格子全部由方块填满，则该列会消失并成为玩家的得分。同时删除的列数越多，得分指数上升。
+（4）当固定的方块堆到区域最上方而无法消除层数时，则游戏结束。
+（6）一般来说，游戏还会提示下一个要落下的方块，熟练的玩家会计算到下一个方块，评估要如何进行。由于游戏能不断进行下去对商业用游戏不太理想，所以一般还会随着游戏的进行而加速提高难度。
+（7）预先设置的随机发生器不断地输出单个方块到场地顶部
+
+
+
+
+ 1) 软件业务需求分析: 分析软件的功能描述, 是研究软件的
+   需求文档, 是软件的详细功能描述, 通过需求文档分析出:
+   有哪些对象, 以及对象的关系: 继承 组成 依赖 关联
+   tetris 俄罗斯方块
+    |-- 依赖 wall 
+    |         |-- rows 20行 组成
+    |              |-- cells 10列组成
+    |-- 依赖 tetromino 正在下落的方块   
+    |          |-- cells 4 个 Cell组成
+    |-- 依赖 nextOne 
+               |-- cells 4 个 Cell组成
+ 2) 数学模型设计! 能够表示对象的属性和关系
+    20行 10列的格子
+    
+ 3) 类的设计, 按照对象的关系设计类, 按照数学模型设计属性
+   JPanel
+     |-- Tetris 继承 于 JPanel 
+           |-- Cell[][] wall
+           |-- Tetromino tetromino
+           |      |-- Cell[] cells
+           |             |-- row
+           |             |-- col      
+           |-- Tetromino nextOne
+           
+  4) 设计构造器(初始数据)
+  
+  5) 设计算法(行为方法)
+      moveLeft() ...           
+    
+    
+  算法流程设计:
+ 完整的下落流程控制: 
+  1) 算法分析和设计
+  2) 算法实现
+  3) 测试案例
+ 
+需求:
+  方块移到区域最下方或是着地到其他方块上无法移动时，
+  就会固定在该处，而新的方块出现在区域上方开始落下
+ 
+ 1) nextTetromino() 生成下一个下落的方块 和 当前下落的方块, 
+ 2) canDrop() 检查当前方块是否能够继续下落
+ 3) landToWall() 着陆, 是方块不能移动以后, 将方块放入墙中
+ 4) softDropAction() 下落流程控制: 如果当前方块能够下落
+   就当前方块下落一步, 如果不能下落就着陆,并生成下个方块 
+     
+ 上述方法的计算数据在 Tetris类中, 所以声明在这个类中
+ 
+ 算法实现
+   在Tetromino 中添加了 getCells() 方法
+   
+  测试案例
+  在 Tetromino 添加了 contains(row, col) 方法
+  在Tetris 中添加了 toString 方法
+  
+ 消除满行
+ 
+ 清除墙
+ 
+  界面绘制(非重点)
+  JFrame
+    |-- Tetris 继承 JPanel
+    |     |-- 重写 paint（） 目的是修改默认的绘制过程
+    |     |         |-- 绘制背景
+    |     |         |-- 绘制 墙
+    |     |         |-- 绘制方块
+    |     |-- main 
+    |     |      |-- 创建 JFrame 对象
+    |     |      |-- 创建 Tetris 对象
+    |     |      |-- 组装 Tetris 对象到  JFrame 对象
+    |     |      |-- 显示 JFrame 对象 -尽快调用->paint()
+    |     |      |-- 调用action()
+    |     |-- action() 启动软件 
+
+ paint 方法是利用现有的数据(wall, tetromino)进行界面绘制！
+ 
+方法(下落，左右移动)修改数据 -> 利用数据重新绘制   
+                  
+ 
+ 事件响应(键盘动作响应)
+  
+  处理键盘事件(down)->方法(下落，左右移动)修改数据 -> 
+   利用数据重新绘制  repaint()-> 尽快调用 paint()
+   
+ 在action方法中处理键盘事件
+ 
+ 左右移动流程 
+ 
+ 旋转 流程 
+  1） 键盘(UP)事件, 执行右旋转流程（rotateRightAction()）
+  2） 四格方块会向右旋转 (rotateRight, rotateLeft)
+  3） 如果旋转出界、重合，要左旋转 回位
+  4）旋转以后，重绘界面
+ 
+ 
+ 加速下落流程 
+ 
+ 定时下落
+ 
+ 开始, 结束 暂停 继续 流程
+ 
+  开始 流程  startAction
+ 1) action方法中调用开始流程！
+ 2) 清空墙, 暂停=false, gameOver = false
+ 3) 生成下一个方块
+ 4) 创建定时器
+ 5) 启动定时计划任务， 调用下降流程  
+  
+  结束  流程
+  0) 结束流程的前提是，检查结束状态
+        就是检查墙上（0,4） 位置是否有方块。gameOver = true
+    /** 检查游戏是否结束 */
+	public void isGameOver(){
+		if(wall[0][4]!=null){
+			gameOver = true;
+			gameOverAction();
+			repaint();
+		}
+	}
+  结束流程 gameOverAction()
+  1) 停止定时器！
+  2) 提示 按[S]Start 重新开始游戏
+	private void gameOverAction() {
+		timer.cancel();
+    }
+ 修改显示提示
+	str = "[P]Pause";
+	if(pause){
+		str = "[C]Continue";
+	}
+	if(gameOver){
+		str = "[S]Start!";
+	}
+ 修改[S] 按键事件
+	if(gameOver){
+		if(key==KeyEvent.VK_S){
+			startAction();
+		}
+		return;
+	}
+  
+  暂停 流程 pauseAction()
+  1) 停止定时器！ 暂停=true,
+  2) 提示 按[C]Continue 继续游戏
+ 	public void pauseAction(){
+		pause = true;
+		if(timer != null){
+			timer.cancel();
+		}
+	}
+  
+  增加键盘事件[P] 调用   pauseAction()
+  
+  修改paintScore() 在暂停时候显示 [C]Continue
+	str = "[P]Pause";
+	if(pause){
+		str = "[C]Continue";
+	}
+  
+  修改键盘事件处理, 在暂停时，不响应[C]以外的事件
+  	if(pause){
+		if(key==KeyEvent.VK_C){
+			continueAction();
+		}
+		return;//提前结束方法
+	} 
+  
+  继续流程continueAction()
+  1) 创建定时器 暂停=false
+  2) 启动定时计划任务， 调用下降流程  
+  3) 提示 按[P]Pause 暂停游戏
+	public void continueAction(){
+		pause = false;
+		timer = new Timer();
+		timer.schedule(new TimerTask() {
+			public void run() {
+				softDropAction();
+				repaint();
+			}
+		}, 0, 800);
+	}
+  
+  
+ 处理全局的退出事件[Q]
+   	if(key==KeyEvent.VK_Q){
+		System.exit(0);
+	}
+  
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+     
+ 
+ 
+ 
+    
+ 
